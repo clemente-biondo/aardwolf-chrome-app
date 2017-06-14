@@ -1,0 +1,22 @@
+html, body{
+  border:0;
+  padding:0;
+  margin:0;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#aard-command-input{
+  width: 100%;
+  flex: 0 0 auto;
+}
+
+#aard-display{
+  width: 100%;
+  flex: 1 1 auto;
+}
+
+
+

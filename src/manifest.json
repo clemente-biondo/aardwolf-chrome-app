@@ -1,0 +1,19 @@
+{
+  "name": "Aardwolf Client",
+  "manifest_version": 2,
+  "description": "Aardwolf Client",
+  "version": "1.0",
+  "icons": { "64": "images/wolf.png"},
+  "app": {
+    "background": {
+      "scripts": [
+        "js/background.js"
+      ]
+    }
+  },
+  "sockets": {
+    "tcp": {
+      "connect": "*:*"
+    }
+  }
+}
