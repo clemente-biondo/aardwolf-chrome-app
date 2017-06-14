@@ -29,11 +29,39 @@ html, body{
   width: 100%;
   flex: 1 1 auto;
   user-select: text;
-  background-color: black;
-  color: silver;
+  background-color: #444;
+  color: white;
   overflow-y: scroll;
-  white-space: pre;
+  white-space: pre-wrap;
+  word-wrap: break-word
 }
 
+.aard-toolbar{
+  flex: 0 0 48px;
+  background-color: #FFC107;
+  display: flex;
+} 
 
+.aard-icon-btn:hover{
+  background-color: rgba(255, 255, 255, .4) ;
+}
 
+.aard-icon-btn{
+  cursor: pointer;
+  padding: 0 12px;  
+}
+
+.aard-icon-btn.aard-connected {
+  display: none;
+}
+
+.aard-icon-btn.aard-disconnected {
+  display: inline-block;
+}
+
+.aard-title{
+  flex: 1 1 auto;
+  font-family: sans-serif;
+  font-size: 20px;
+  align-self: center;
+}
