@@ -4,12 +4,49 @@ class MudClient {
     this.ti = new TelnetInterpreter();
     this.socketId = null;
     this.connected = false;
+    this.eventListeners={
+      connect:[],
+      disconnect:[]
+    };
+    this.checkConnectionTimeout=null;
+
     
     //syntactic sugar
     this.boundOnReceiveCallback=this.onReceiveCallback.bind(this);
     this.boundOnReceiveErrorCallback=this.onReceiveErrorCallback.bind(this);
   }
 
+  addConnectEventListener (func){
+    addEventListener ("connect",func)
+  }
+
+  addDisconnectEventListener (func){
+    addEventListener ("disconnect",func)
+  }
+
+  addEventListener (eventType,func){
+    this.eventListeners[eventType].push(func);
+  }
+
+  removeEventListener (eventType,func){
+    let arr=this.eventListeners[eventType];
+    for (let i=0,len=arr.len;i<len;i++){
+      let el=arr[i];
+      if (el==func){
+        arr.slice(i,1);
+        break;
+      }
+    }
+  }
+
+  fireEventListener (eventType,event){
+    let arr=this.eventListeners[eventType];
+    for (let i=0,len=arr.len;i<len;i++){
+      let el=arr[i];
+      el(event);
+    }
+  }
+  
   get displayOutputCallback (){
     return this.ti.displayOutputCallback;
   }
@@ -38,7 +75,15 @@ class MudClient {
           this.socketId = createInfo.socketId;
           this.connected = true;
           chrome.sockets.tcp.onReceive.addListener(this.boundOnReceiveCallback);
-          chrome.sockets.tcp.onReceiveError.addListener(this.boundOnReceiveErrorCallback);          
+          chrome.sockets.tcp.onReceiveError.addListener(this.boundOnReceiveErrorCallback);
+          this.fireEventListener("connect",{type:"ConnectionEvent",timeStamp:Date.now()});
+          this.checkConnectionTimeout=setInterval(() =>{
+            chrome.sockets.tcp.getInfo(this.socketId, (socketInfo)=>{
+              console.log(socketInfo);
+              if (!socketInfo.connected){
+              this.disconnect();
+            }});
+          },5000);         
           resolve();
         });
       });
@@ -88,11 +133,15 @@ class MudClient {
       }
       chrome.sockets.tcp.disconnect(this.socketId,  () => {
         chrome.sockets.tcp.close(this.socketId,  ()  =>{
+          if(this.checkConnectionTimeout!= null){
+            clearInterval(this.checkConnectionTimeout);
+          }
           this.socketId = null;
           this.connected = false;
           console.log("disconnected.");
           chrome.sockets.tcp.onReceive.removeListener(this.boundOnReceiveCallback);
-          chrome.sockets.tcp.onReceiveError.removeListener(this.boundOnReceiveErrorCallback);          
+          chrome.sockets.tcp.onReceiveError.removeListener(this.boundOnReceiveErrorCallback); 
+          this.fireEventListener("disconnect",{type:"DisconnectionEvent",timeStamp:Date.now()});
           resolve();
         });
       });
